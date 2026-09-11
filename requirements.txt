@@ -1,0 +1,3 @@
+customtkinter
+youtube-transcript-api
+anthropic
