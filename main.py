@@ -57,19 +57,16 @@ class App(customtkinter.CTk):
 
         try:
             transcript_text = transcript.fetch_transcript(video_id)
-        except transcript.TranscriptError as exc:
-            self.after(0, self._on_error, str(exc))
-            return
-
-        title = transcript.get_video_title(video_id)
-
-        try:
+            title = transcript.get_video_title(video_id)
             summary_text = summarizer.summarize(transcript_text)
-        except summarizer.SummarizerError as exc:
+            storage.save_summary(video_id, url, title, transcript_text, summary_text)
+        except (transcript.TranscriptError, summarizer.SummarizerError) as exc:
             self.after(0, self._on_error, str(exc))
             return
+        except Exception as exc:
+            self.after(0, self._on_error, f"Something went wrong: {exc}")
+            return
 
-        storage.save_summary(video_id, url, title, transcript_text, summary_text)
         self.after(0, self._on_success, summary_text)
 
     def _on_success(self, summary_text: str):

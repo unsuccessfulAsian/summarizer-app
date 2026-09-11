@@ -27,7 +27,7 @@ def summarize(transcript: str) -> str:
     try:
         response = client.messages.create(
             model=_MODEL,
-            max_tokens=2048,
+            max_tokens=16000,
             messages=[
                 {
                     "role": "user",
@@ -35,6 +35,6 @@ def summarize(transcript: str) -> str:
                 }
             ],
         )
+        return next(block.text for block in response.content if block.type == "text")
     except Exception as exc:
         raise SummarizerError(f"Claude API call failed: {exc}") from exc
-    return response.content[0].text
