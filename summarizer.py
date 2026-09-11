@@ -1,6 +1,6 @@
 from groq import Groq
 
-_MODEL = "llama-3.3-70b-versatile"
+_MODEL = "openai/gpt-oss-120b"
 
 _PROMPT_TEMPLATE = """\
 You are summarizing the transcript of a YouTube video (likely a lecture or \
