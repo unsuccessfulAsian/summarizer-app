@@ -22,8 +22,8 @@ class SummarizerError(Exception):
     pass
 
 
-def summarize(transcript: str) -> str:
-    client = Groq()
+def summarize(transcript: str, api_key: str | None = None) -> str:
+    client = Groq(api_key=api_key) if api_key else Groq()
     try:
         response = client.chat.completions.create(
             model=_MODEL,

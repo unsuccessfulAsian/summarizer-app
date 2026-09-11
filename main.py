@@ -3,6 +3,7 @@ import tkinter.messagebox as messagebox
 
 import customtkinter
 
+import apikey
 import storage
 import summarizer
 import transcript
@@ -34,11 +35,19 @@ class App(customtkinter.CTk):
         )
         self.history_button.pack(side="left", padx=(10, 0))
 
+        self.settings_button = customtkinter.CTkButton(
+            button_frame, text="Settings", command=self.open_settings_window
+        )
+        self.settings_button.pack(side="left", padx=(10, 0))
+
         self.status_label = customtkinter.CTkLabel(self, text="")
         self.status_label.pack(fill="x", padx=10)
 
         self.result_box = customtkinter.CTkTextbox(self, wrap="word")
         self.result_box.pack(fill="both", expand=True, padx=10, pady=10)
+
+        if not apikey.get_api_key():
+            self.after(100, self.open_settings_window)
 
     def on_summarize_click(self):
         url = self.url_entry.get().strip()
@@ -55,10 +64,15 @@ class App(customtkinter.CTk):
             self.after(0, self._on_error, "That doesn't look like a valid YouTube URL.")
             return
 
+        key = apikey.get_api_key()
+        if not key:
+            self.after(0, self._on_error, "No Groq API key set. Click Settings to add one.")
+            return
+
         try:
             transcript_text = transcript.fetch_transcript(video_id)
             title = transcript.get_video_title(video_id)
-            summary_text = summarizer.summarize(transcript_text)
+            summary_text = summarizer.summarize(transcript_text, api_key=key)
             storage.save_summary(video_id, url, title, transcript_text, summary_text)
         except (transcript.TranscriptError, summarizer.SummarizerError) as exc:
             self.after(0, self._on_error, str(exc))
@@ -95,6 +109,30 @@ class App(customtkinter.CTk):
                 command=lambda eid=entry["id"], win=window: self._load_history_item(eid, win),
             )
             row.pack(fill="x", padx=5, pady=2)
+
+    def open_settings_window(self):
+        window = customtkinter.CTkToplevel(self)
+        window.title("Settings")
+        window.geometry("400x150")
+        window.grab_set()
+
+        customtkinter.CTkLabel(window, text="Groq API Key").pack(padx=10, pady=(15, 5), anchor="w")
+
+        key_entry = customtkinter.CTkEntry(window, show="*")
+        key_entry.pack(fill="x", padx=10)
+        existing_key = apikey.get_api_key()
+        if existing_key:
+            key_entry.insert(0, existing_key)
+
+        def save():
+            value = key_entry.get().strip()
+            if not value:
+                messagebox.showerror("Error", "API key can't be empty.")
+                return
+            apikey.set_api_key(value)
+            window.destroy()
+
+        customtkinter.CTkButton(window, text="Save", command=save).pack(pady=15)
 
     def _load_history_item(self, summary_id: int, window):
         record = storage.get_summary(summary_id)
