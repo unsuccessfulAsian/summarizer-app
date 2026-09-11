@@ -1,6 +1,6 @@
-import anthropic
+from groq import Groq
 
-_MODEL = "claude-sonnet-5"
+_MODEL = "llama-3.3-70b-versatile"
 
 _PROMPT_TEMPLATE = """\
 You are summarizing the transcript of a YouTube video (likely a lecture or \
@@ -23,11 +23,11 @@ class SummarizerError(Exception):
 
 
 def summarize(transcript: str) -> str:
-    client = anthropic.Anthropic()
+    client = Groq()
     try:
-        response = client.messages.create(
+        response = client.chat.completions.create(
             model=_MODEL,
-            max_tokens=16000,
+            max_tokens=4096,
             messages=[
                 {
                     "role": "user",
@@ -35,6 +35,6 @@ def summarize(transcript: str) -> str:
                 }
             ],
         )
-        return next(block.text for block in response.content if block.type == "text")
+        return response.choices[0].message.content
     except Exception as exc:
-        raise SummarizerError(f"Claude API call failed: {exc}") from exc
+        raise SummarizerError(f"Groq API call failed: {exc}") from exc
