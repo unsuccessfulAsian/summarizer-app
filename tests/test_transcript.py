@@ -1,4 +1,4 @@
-from transcript import extract_video_id
+from app.transcript import extract_video_id
 
 
 def test_extract_video_id_watch_url():

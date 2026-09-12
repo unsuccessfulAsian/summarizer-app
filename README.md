@@ -1,6 +1,6 @@
 # YouTube Summarizer
 
-A small desktop app that fetches a YouTube video's transcript and summarizes it using Groq's free-tier Llama model.
+A small personal desktop app I made that fetches a YouTube video's transcript and summarizes it using Groq's free-tier Llama model.
 
 ## Features
 
@@ -23,13 +23,16 @@ Run `create_shortcut.ps1` to add a desktop shortcut that launches the app withou
 
 ## Project structure
 
-| File | Purpose |
-|---|---|
-| `main.py` | Desktop GUI (customtkinter) |
-| `transcript.py` | YouTube transcript fetching and video ID extraction |
-| `summarizer.py` | Groq API summarization |
-| `storage.py` | SQLite storage for summary history |
-| `apikey.py` | Secure API key storage via keyring |
+```
+main.py          entry point (python main.py)
+app/
+  main.py         desktop GUI (customtkinter)
+  transcript.py   YouTube transcript fetching and video ID extraction
+  summarizer.py   Groq API summarization
+  storage.py      SQLite storage for summary history
+  apikey.py       secure API key storage via keyring
+tests/
+```
 
 ## Tests
 
